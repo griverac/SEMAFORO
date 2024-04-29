@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMAFORO - Task Manager</title>
+    <style>
+        /* Estilos CSS para la interfaz */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .process-list {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .process-list h2 {
+            margin-top: 0;
+        }
+        .process-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .process-controls {
+            margin-top: 20px;
+        }
+        .process-controls input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SEMAFORO - Task Manager</h1>
+        
+        <!-- Representación de la pila de procesos -->
+        <div class="process-list">
+            <h2>Procesos en la Pila</h2>
+            <div class="process-item">Proceso 1</div>
+            <div class="process-item">Proceso 2</div>
+            <div class="process-item">Proceso 3</div>
+            <!-- Aquí se listarían dinámicamente los procesos -->
+        </div>
+
+        <!-- Controles para añadir o eliminar procesos -->
+        <div class="process-controls">
+            <input type="text" id="process-name" placeholder="Nombre del Proceso">
+            <input type="number" id="process-priority" placeholder="Prioridad">
+            <button onclick="addProcess()">Añadir Proceso</button>
+            <button onclick="removeProcess()">Eliminar Proceso</button>
+        </div>
+    </div>
+
+    <script>
+        // Función para añadir un proceso a la pila
+        function addProcess() {
+            var processName = document.getElementById('process-name').value;
+            var processPriority = document.getElementById('process-priority').value;
+
+            // Aquí deberías implementar la lógica para añadir el proceso a la pila
+            // y actualizar la interfaz de usuario
+            console.log("Añadir proceso:", processName, "con prioridad", processPriority);
+        }
+
+        // Función para eliminar un proceso de la pila
+        function removeProcess() {
+            // Aquí deberías implementar la lógica para eliminar un proceso de la pila
+            // y actualizar la interfaz de usuario
+            console.log("Eliminar proceso");
+        }
+    </script>
+</body>
+</html>
