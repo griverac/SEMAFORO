@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMAFORO - Task Manager</title>
+    <style>
+        /* Estilos CSS aquí */
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #007bff; /* Azul */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 400px;
+            background-color: #fff; /* Blanco */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333; /* Color de texto oscuro */
+        }
+        select, input[type="text"], input[type="number"], button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc; /* Borde gris claro */
+            border-radius: 5px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049; /* Verde más oscuro */
+        }
+        .process-list {
+            margin-bottom: 20px;
+        }
+        .process-item {
+            position: relative;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f2f2f2; /* Gris claro */
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+        .process-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #f44336; /* Rojo */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 16px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .info {
+            background-color: #f9f9f9; /* Gris muy claro */
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SEMAFORO - Task Manager</h1>
+        
+        <!-- Información de estrategias y prioridades -->
+        <div class="info">
+            <h2>¿Cómo Funcionan?</h2>
+            <p><strong>FIFO:</strong> Los procesos se atienden en el orden en el que llegan. Es decir, el primero en entrar es el primero en salir.</p>
+            <p><strong>LIFO:</strong> Los procesos se atienden en el orden inverso al que llegan. Es decir, el último en entrar es el primero en salir.</p>
+            <p><strong>Prioridades:</strong> Las prioridades pueden ser valores numéricos que indican la importancia de cada proceso. Un valor más alto significa mayor prioridad.</p>
+        </div>
+
+        <!-- Selector de estrategia -->
+        <div>
+            <label for="strategy">Estrategia:</label>
+            <select id="strategy" onchange="changeStrategy()">
+                <option value="fifo">FIFO</option>
+                <option value="lifo">LIFO</option>
+            </select>
+        </div>
+
+        <!-- Representación de la pila o cola de procesos -->
+        <div class="process-list" id="process-queue">
+            <h2>Procesos en la Cola</h2>
+            <!-- Aquí se listarían dinámicamente los procesos para FIFO o LIFO -->
+        </div>
+
+        <!-- Controles para añadir o eliminar procesos -->
+        <div class="process-controls">
+            <input type="text" id="process-name" placeholder="Nombre del Proceso">
+            <input type="number" id="process-priority" placeholder="Prioridad">
+            <button onclick="addProcess()">Añadir Proceso</button>
+            <button onclick="removeProcess()">Atender Proceso</button>
+            <button onclick="clearAllProcesses()">Limpiar Todo</button>
+        </div>
+    </div>
+
+    <script>
+        var processQueue = []; // Cola para almacenar los procesos en FIFO
+        var processStack = []; // Pila para almacenar los procesos en LIFO
+        var strategy = 'fifo'; // Estrategia por defecto
+
+        function renderProcessQueue() {
+            var processQueueContainer = document.getElementById('process-queue');
+            processQueueContainer.innerHTML = `<h2>Procesos en la ${strategy.toUpperCase()}</h2>`;
+
+            if (strategy === 'fifo') {
+                processQueue.forEach(function(process, index) {
+                    var processItem = document.createElement('div');
+                    processItem.className = 'process-item';
+                    processItem.textContent = process.name + ' - Prioridad: ' + process.priority;
+                    processQueueContainer.appendChild(processItem);
+
+                    // Agregar punto para eliminar el proceso
+                    var deleteButton = document.createElement('div');
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.textContent = '•';
+                    deleteButton.setAttribute('onclick', `removeProcessAtIndex(${index})`);
+                    processItem.appendChild(deleteButton);
+                });
+            } else {
+                processStack.forEach(function(process, index) {
+                    var processItem = document.createElement('div');
+                    processItem.className = 'process-item';
+                    processItem.textContent = process.name + ' - Prioridad: ' + process.priority;
+                    processQueueContainer.appendChild(processItem);
+
+                    // Agregar punto para eliminar el proceso
+                    var deleteButton = document.createElement('div');
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.textContent = '•';
+                    deleteButton.setAttribute('onclick', `removeProcessAtIndex(${index})`);
+                    processItem.appendChild(deleteButton);
+                });
+            }
+        }
+
+        function addProcess() {
+            var processName = document.getElementById('process-name').value;
+            var processPriority = document.getElementById('process-priority').value;
+
+            // Verificar si se proporcionó un nombre y una prioridad válidos
+            if (processName.trim() === '' || isNaN(processPriority)) {
+                alert('Por favor ingrese un nombre y una prioridad válidos.');
+                return;
+            }
+
+            // Añadir proceso a la cola o pila dependiendo de la estrategia
+            if (strategy === 'fifo') {
+                processQueue.push({
+                    name: processName,
+                    priority: parseInt(processPriority)
+                });
+            } else {
+                processStack.push({
+                    name: processName,
+                    priority: parseInt(processPriority)
+                });
+            }
+
+            // Renderizar la lista de procesos
+            renderProcessQueue();
+        }
+
+        function removeProcessAtIndex(index) {
+            // Eliminar el proceso en la posición index de la cola o pila dependiendo de la estrategia
+            if (strategy === 'fifo') {
+                processQueue.splice(index, 1);
+            } else {
+                processStack.splice(index, 1);
+            }
+
+            // Renderizar la lista de procesos
+            renderProcessQueue();
+        }
+
+        function removeProcess() {
+            // Verificar si la cola o pila está vacía
+            if ((strategy === 'fifo' && processQueue.length === 0) || (strategy === 'lifo' && processStack.length === 0)) {
+                alert('La cola o pila de procesos está vacía.');
+                return;
+            }
+
+            // Eliminar el primer proceso de la cola o pila dependiendo de la estrategia
+            if (strategy === 'fifo') {
+                processQueue.shift();
+            } else {
+                processStack.pop();
+            }
+
+            // Renderizar la lista de procesos
+            renderProcessQueue();
+        }
+
+        function clearAllProcesses() {
+            // Limpiar la cola o pila de procesos
+            processQueue = [];
+            processStack = [];
+
+            // Renderizar la lista de procesos
+            renderProcessQueue();
+        }
+
+        function changeStrategy() {
+            strategy = document.getElementById('strategy').value;
+            renderProcessQueue();
+        }
+    </script>
+</body>
+</html>
